@@ -7,9 +7,15 @@ const maxAge : number =  3 * 24 * 60 * 60
 const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
 export const createToken = (id : number | string | Object) =>{
-    return jwt.sign({id}, SECRET_KEY ,{
-        expiresIn: maxAge
-    })
+    return jwt.sign(
+        {id}, SECRET_KEY ,{
+            expiresIn: maxAge
+        }
+    )
+}
+
+export const accessToken = () =>{
+    
 }
 
 export const resetToken = () =>{

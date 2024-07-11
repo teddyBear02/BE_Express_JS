@@ -21,11 +21,6 @@ const UsersSchema = new Schema(
             require: true
         },
 
-        Blog:{
-            type: Schema.Types.Array,
-            ref: "Blog"   
-        },
-
         Avatar:{
             type: Schema.Types.String,
             default: null

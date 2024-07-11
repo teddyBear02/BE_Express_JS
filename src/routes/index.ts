@@ -1,15 +1,16 @@
-// Import middlewares or link utils heres: 
-
+// Import things heres: 
 import { Router } from 'express'
 
-// Import Controllers:
+// Import Routes:
 
-import userRouter from '../controllers/userController'
-import blogRouter from '../controllers/blogController'
+import AuthRouter from './auth.route'
+import UserRouter from './user.route'
+import BlogRouter from './blog.route'
 
 const router : Router = Router()
 
-router.use(userRouter)
-router.use(blogRouter)
+router.use(AuthRouter)
+router.use(UserRouter)
+router.use(BlogRouter)
 
 export default router

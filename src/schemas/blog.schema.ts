@@ -15,9 +15,10 @@ const BlogSchema = new Schema(
             default: null
         },
 
-        Tag:{
+        Comment:{
             type: Schema.Types.Array,
-            default: []
+            default: [],
+            ref: "Comments"
         },
 
         Author:{

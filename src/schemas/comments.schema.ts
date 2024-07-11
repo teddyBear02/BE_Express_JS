@@ -9,12 +9,12 @@ const CommentSchema = new Schema(
             length: 200
         },
 
-        Author:{
+        AuthorId:{
             type: Schema.Types.ObjectId,
             ref: "User"
         },
 
-        Blog: {
+        BlogId: {
             type: Schema.Types.ObjectId,
             ref: "Blog"
         },
