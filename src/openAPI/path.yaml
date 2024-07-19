@@ -1,5 +1,4 @@
 openapi: 3.0.3
-
 tags:
   - name: pet
     description: Everything about your Pets

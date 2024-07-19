@@ -9,7 +9,8 @@ const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 export const createToken = (id : number | string | Object) =>{
     return jwt.sign(
         {id}, SECRET_KEY ,{
-            expiresIn: maxAge
+            expiresIn: maxAge,
+            algorithm:"HS384",
         }
     )
 }

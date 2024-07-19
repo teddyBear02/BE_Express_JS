@@ -17,28 +17,15 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
   const test = await Promise.all(
     blogs.map(async (blog) => {
 
-      const comments = await Comments.find({ BlogId: blog._id })
-
-      const user = await User.findOne({_id: blog.Author})
-
-      const userCreated = {
-        _id: user?.id,
-        Name: user?.Name,
-        Email: user?.Email,
-        Avatar: user?.Avatar,
-        Role: user?.Role
-      }
-
       const blogReturn = {
         _id: blog._id,
-        Content: blog.Content,
-        Image: blog.Image,
-        Comment: comments,
-        Author: userCreated,
+        content: blog.Content,
+        image: blog.Image,
+        comment: blog.Comment,
+        author: blog.Author,
         createdAt: blog.createdAt,
         updatedAt: blog.updatedAt
       }
-  
       return blogReturn;
     })
   )
@@ -130,11 +117,9 @@ export const createNewPost = async (req:Request, res:Response)=>{
       Author: userFilter
     }
   )
-  try {
-      userCreate.Blog.push(newBlog._id)
-      await userCreate.save()
-      const blog = await newBlog.save()
 
+  try {
+      const blog = await newBlog.save()
       return res.status(201).send({
         blog: blog,
         message: 'Create new blog successfully !',

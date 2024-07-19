@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { validationResult, matchedData } from 'express-validator'
-import { comparePassword, hashPassword } from '../helpers/auth/authHelper'
-import { createToken } from '../helpers/auth/jwtOAuthHelper'
+import { comparePassword, hashPassword } from '../helpers/authHelper'
+import { createToken } from '../helpers/jwtOAuthHelper'
 import { User } from '../schemas'
 
 
@@ -20,34 +20,30 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const data = matchedData(req)
+    const user = await User.findOne({ Email: data.Email })
+
     try {
-        const user = await User.findOne({ Email: data.Email })
         if (user) {
             const auth = comparePassword(data.Password, user.Password)
             const token = createToken(user._id)
 
             const userFilter = {
             _id: user._id,
-            Name: user.Name,
-            Email: user.Email,
-            Avatar: user.Avatar,
-            Role: user.Role,
+            name: user.Name,
+            email: user.Email,
+            avatar: user.Avatar,
+            role: user.Role,
             }
 
             if (auth) {
 
-            res.cookie("Token", (token).toString(), {
-                path: "/",
-                maxAge: 7 * 24 * 60 * 60,
-                secure: true
-            })
-
-            return (res.status(200).json(
+            return (
+                res.status(200).json(
                     {
-                    user: userFilter,
-                    message: "Login succeed !!!",
-                    status: 200,
-                    token: token
+                        user: userFilter,
+                        message: "Login succeed !!!",
+                        status: 200,
+                        token: token
                     }
                 )
             )
@@ -124,7 +120,3 @@ export const logout = async (req:Request, res: Response) => {
     return res.json({ message: 'Logout successful', status: 200 });
     });
 }
-
-
- 
-  

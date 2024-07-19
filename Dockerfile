@@ -2,7 +2,7 @@
 FROM node:14
 
 # Đặt thư mục làm việc mặc định trong container
-WORKDIR /app
+WORKDIR /scr
 
 # Sao chép package.json và package-lock.json (nếu có) vào thư mục hiện tại
 COPY package*.json ./
@@ -13,8 +13,8 @@ RUN npm install
 # Sao chép tất cả các mã nguồn vào thư mục hiện tại
 COPY . .
 
-# Mở cổng 3000 để kết nối tới ứng dụng
-EXPOSE 3000
+# Mở cổng 8080 để kết nối tới ứng dụng
+EXPOSE 8080
 
 # Khởi chạy ứng dụng
 CMD ["npm", "start"]

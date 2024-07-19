@@ -15,17 +15,17 @@ const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
 
 router.get('/api/blogs',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     getAllBlogs
 )
 
-router.get('/api/blogs/user/:user_id',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+router.get('/api/blog/user/:user_id',
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     getBlogByUserId
 )
 
 router.post('/api/blog',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     [
         body("Content")
         .notEmpty()
@@ -37,20 +37,20 @@ router.post('/api/blog',
 )
 
 
-router.put('/api/blogs/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+router.put('/api/blog/:id',
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     updatePost
 )
 
     
-router.delete('/api/blogs/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+router.delete('/api/blog/:id',
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     deletePostById
 )
 
 
-router.get('/api/blogs/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS256"]}),
+router.get('/api/blog/:id',
+    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
     getPostById
 )
 

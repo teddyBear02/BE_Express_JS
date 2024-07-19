@@ -20,7 +20,7 @@ mongoose.connect(`${process.env.DATABASE_MONGOSE_URL}`)
     .then(() => console.log('Connected to DB !!!'))
     .catch((err) => console.log(`Error: ${err}`))
 
-const key : string | undefined | any = process.env.SESSION_SECRET_KEY    
+const key : any  = process.env.SESSION_SECRET_KEY    
 
 app.use(cors({
     origin: process.env.END_POINT_URL,

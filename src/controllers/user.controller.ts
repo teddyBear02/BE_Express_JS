@@ -34,7 +34,6 @@ export const getUser =  async (req: Request, res: Response) => {
 
 //! [DELETE] User by id - DON'T USE THIS ROUTE :
 
-
 export  const deleteUserById = async (req :Request, res : Response) => {
     const { params: { id } } = req
 
@@ -63,7 +62,7 @@ export const getUserById = async (req :Request, res : Response) => {
       message: "Bad Resquest,400"
     })
 
-    const user = await User.findOne({_id:req.params.id})
+    const user = await User.findOne({_id: req.params.id})
 
     const blogs = await Blog.find({Author: user?._id})
 
