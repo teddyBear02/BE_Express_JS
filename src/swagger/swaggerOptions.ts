@@ -1,4 +1,4 @@
-const port : string | undefined = process.env.PORT_SERVER || process.env.SUB_PORT_SERVER
+import { PORT } from "../constants";
 
 export const swaggerOptions = {
     swaggerDefinition: {
@@ -10,7 +10,7 @@ export const swaggerOptions = {
         },
         servers: [
             {
-                url: `http://localhost:${port}`,
+                url: `http://localhost:${typeof PORT == 'undefined' ? 5000 : PORT }`,
                 description: 'Development server'
             }
         ]

@@ -9,11 +9,12 @@ import cookieParser from 'cookie-parser'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import {swaggerOptions} from './swagger/swaggerOptions'
+import { PORT } from './constants'
+
 
 // Coding here: 
 dotenv.config()
 const app = express()
-const port : string | undefined = process.env.PORT_SERVER || process.env.SUB_PORT_SERVER
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 mongoose.connect(`${process.env.DATABASE_MONGOSE_URL}`)
@@ -43,9 +44,9 @@ app.use(session(
 app.use(express.json())
 app.use(routes)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.listen(port, async ()=>{
-    console.log(`Server is running at http://localhost:${port}`)
-    console.log(`API Swagger is running at http://localhost:${port}/api-docs`)
+app.listen(PORT, async ()=>{
+    console.log(`Server is running at http://localhost:${PORT}`)
+    console.log(`API Swagger is running at http://localhost:${PORT}/api-docs`)
 })
 
 

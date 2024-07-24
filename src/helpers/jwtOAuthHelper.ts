@@ -1,10 +1,8 @@
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
+import { expressjwt as jwts } from 'express-jwt'
+import { SECRET_KEY } from '../constants'
 
-dotenv.config()
 const maxAge : number =  3 * 24 * 60 * 60
-
-const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
 export const createToken = (id : number | string | Object) =>{
     return jwt.sign(
@@ -21,4 +19,8 @@ export const accessToken = () =>{
 
 export const resetToken = () =>{
     
+}
+
+export const algorithm = () =>{
+    return jwts({secret:SECRET_KEY, algorithms :["HS384"]})
 }

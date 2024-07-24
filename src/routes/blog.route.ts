@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { expressjwt as jwts } from 'express-jwt'
 import { body } from 'express-validator'
+import { algorithm } from '../helpers/jwtOAuthHelper'
 import { 
     getAllBlogs, 
     getBlogByUserId, 
@@ -11,21 +11,14 @@ import {
 } from '../controllers/blog.controller'
 
 const router = Router()
-const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
+router.get('/api/blogs', algorithm, getAllBlogs )
 
-router.get('/api/blogs',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
-    getAllBlogs
-)
+router.get('/api/blog/user/:user_id', algorithm, getBlogByUserId )
 
-router.get('/api/blog/user/:user_id',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
-    getBlogByUserId
-)
+router.get('/api/blog/:id', algorithm, getPostById )
 
-router.post('/api/blog',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
+router.post('/api/blog', algorithm,
     [
         body("Content")
         .notEmpty()
@@ -36,22 +29,8 @@ router.post('/api/blog',
     createNewPost
 )
 
-
-router.put('/api/blog/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
-    updatePost
-)
-
+router.put('/api/blog/:id', algorithm, updatePost )
     
-router.delete('/api/blog/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
-    deletePostById
-)
-
-
-router.get('/api/blog/:id',
-    jwts({secret:SECRET_KEY, algorithms :["HS384"]}),
-    getPostById
-)
+router.delete('/api/blog/:id', algorithm, deletePostById )
 
 export default router

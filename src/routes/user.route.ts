@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { algorithm } from '../helpers/jwtOAuthHelper'
 import { 
     getUser, 
     deleteUserById, 
@@ -9,9 +10,9 @@ import {
 const router = Router()
 
 
-router.get('/api/users', getUser)
-router.delete('/api/users/:id', deleteUserById)
-router.get('/api/users/:id', getUserById)
-router.put('/api/users/:id', updateUser)
+router.get('/api/users', algorithm, getUser)
+router.delete('/api/users/:id', algorithm, deleteUserById)
+router.get('/api/users/:id', algorithm, getUserById)
+router.put('/api/users/:id', algorithm, updateUser)
 
 export default router
