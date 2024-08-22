@@ -14,15 +14,15 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
   const blogs = await Blog.find();
 
   //
-  const test = await Promise.all(
+  const responseData = await Promise.all(
     blogs.map(async (blog) => {
 
       const blogReturn = {
         _id: blog._id,
-        content: blog.Content,
-        image: blog.Image,
-        comment: blog.Comment,
-        author: blog.Author,
+        content: blog.content,
+        image: blog.image,
+        comment: blog.comment,
+        author: blog.author,
         createdAt: blog.createdAt,
         updatedAt: blog.updatedAt
       }
@@ -32,7 +32,7 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 
   try {
     res.status(200).send({
-      blogs: test,
+      result: responseData,
       message: "Get all blogs successfully !",
       status: 200
     })
@@ -41,41 +41,39 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
   }
 }
 
-//*_______________ [GET] - All blogs: __________________//
+//*_______________ [GET] - All blogs by user id : __________________//
 
 
 export const getBlogByUserId = async (req: Request, res: Response)=>{
+  const user  = await User.findOne({_id: req.params.user_id})
+  if(!user){
+    return res.status(404).send({
+      message:"Not found user",
+      status: 404
+    })
+  }else{
+    try {
+      const blogs = await Blog.find({Author:user.id});
 
-    const user  = await User.findOne({_id: req.params.user_id})
-  
-    if(!user){
-      return res.status(404).send({
-        message:"Not found user",
-        status: 404
-      })
-    }else{
-      try {
-        const blogs = await Blog.find({Author:user.id});
-
-        const userFilter = {
-          _id: user._id,
-          Name: user.Name,
-          Email: user.Email,
-          Avatar: user.Avatar,
-          Role: user.Role,
-        }
-
-        res.status(200).send({
-          user: userFilter,
-          blogs: blogs,
-          message: "Get all blogs successfully !",
-          status: 200
-        })
-      } catch (error : Error | undefined | any) {
-        res.status(400).send(error.message)
+      const userFilter = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
       }
+
+      res.status(200).send({
+        user: userFilter,
+        result: blogs,
+        message: "Get all blogs successfully !",
+        status: 200
+      })
+    } catch (error : Error | undefined | any) {
+      res.status(400).send(error.message)
     }
   }
+}
 
 
 //*_______________ [POST] - Blog : __________________//
@@ -91,11 +89,11 @@ export const createNewPost = async (req:Request, res:Response)=>{
 
   const userFilter = {
     _id: userCreate._id,
-    Name: userCreate.Name,
-    Email: userCreate.Email,
-    Avatar: userCreate.Avatar,
-    Role: userCreate.Role,
-    Blog: userCreate.Blog
+    name: userCreate.name,
+    email: userCreate.email,
+    avatar: userCreate.avatar,
+    role: userCreate.role,
+    blog: userCreate.blog
   }
   
   const result = validationResult(req)
@@ -113,15 +111,15 @@ export const createNewPost = async (req:Request, res:Response)=>{
   console.log(data)
   const newBlog = new Blog(
     {
-      Content: data.Content,
-      Author: userFilter
+      content: data.content,
+      author: userFilter
     }
   )
 
   try {
       const blog = await newBlog.save()
       return res.status(201).send({
-        blog: blog,
+        result: blog,
         message: 'Create new blog successfully !',
         status: 201
       })  
@@ -135,75 +133,74 @@ export const createNewPost = async (req:Request, res:Response)=>{
 
 
 export const updatePost = async (req:Request, res:Response)=>{
+  const token : string | any = req.headers['authorization'];
 
-    const token : string | any = req.headers['authorization'];
+  const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
 
-    const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const userCreate = await User.findOne({_id:decodedToken.id})
 
-    const userCreate = await User.findOne({_id:decodedToken.id})
+  const {
+      body, 
+      params:{id}
+  } = req
 
-    const {
-        body, 
-        params:{id}
-    } = req
+  const blogs = await Blog.find({Author:userCreate?._id})
 
-    const blogs = await Blog.find({Author:userCreate?._id})
+  const posterIndex = blogs.findIndex((blog)=> blog.id === id)
 
-    const posterIndex = blogs.findIndex((blog)=> blog.id === id)
-
-    if(posterIndex === -1){
-      return res.status(404).send(
-        {
-          message: `Can't found the poster !!!`,
-          status:404
-        }
-      )
-    } else{
-      const posterUpdate = await Blog.findByIdAndUpdate(id, body,{new:true});
-      return res.status(200).send(
-        {
-          poster: posterUpdate,
-          message: "Update poster successfully !!!",
-          status: 200
-        }
-      )
-    }
+  if(posterIndex === -1){
+    return res.status(404).send(
+      {
+        message: `Can't found the poster !!!`,
+        status:404
+      }
+    )
+  } else{
+    const posterUpdate = await Blog.findByIdAndUpdate(id, body,{new:true});
+    return res.status(200).send(
+      {
+        result: posterUpdate,
+        message: "Update poster successfully !!!",
+        status: 200
+      }
+    )
   }
+}
 
 
 //*_______________ [DELETE] - Blog by id: __________________//
 
 
 export const deletePostById =  async(req: Request, res: Response) =>{
-    const {params:{id}}= req
+  const {params:{id}}= req
 
-    const token : string | any = req.headers['authorization'];
+  const token : string | any = req.headers['authorization'];
 
-    const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
 
-    const userCreate = await User.findOne({_id:decodedToken.id})
+  const userCreate = await User.findOne({_id:decodedToken.id})
 
-    const blogs = await Blog.find({Author: userCreate?._id})
-    
-    const posterIndex = blogs.findIndex((blog)=> blog.id === id)
-    
-    if(posterIndex === -1) {
-      return res.status(404).send(
-        {
-          message: "Can't found the poster !!!",
-          status: 404
-        }
-      )
-    }else{
-      await Blog.findByIdAndDelete(id)
-      return res.status(200).send(
-        {
-          message:"Delete record successfully !",
-          status:200
-        }
-      )
-    }
+  const blogs = await Blog.find({Author: userCreate?._id})
+  
+  const posterIndex = blogs.findIndex((blog)=> blog.id === id)
+  
+  if(posterIndex === -1) {
+    return res.status(404).send(
+      {
+        message: "Can't found the poster !!!",
+        status: 404
+      }
+    )
+  }else{
+    await Blog.findByIdAndDelete(id)
+    return res.status(200).send(
+      {
+        message:"Delete record successfully !",
+        status:200
+      }
+    )
   }
+}
 
 //*_______________ [GET] - Blog by id: __________________//
 
@@ -220,20 +217,20 @@ export const getPostById =  async(req: Request, res: Response)=>{
 
   const comments = await Comments.find({BlogId:id})
 
-  const userCreated = await User.findOne({_id:blog?.Author})
+  const userCreated = await User.findOne({_id:blog?.author})
 
   const userReturn = {
     _id:userCreated?._id,
-    Name: userCreated?.Name,
-    Email: userCreated?.Email,
-    Avatar: userCreated?.Avatar,
-    Role: userCreated?.Role,
+    Name: userCreated?.name,
+    Email: userCreated?.email,
+    Avatar: userCreated?.avatar,
+    Role: userCreated?.role,
   }
 
   const blogReturn = {
     _id: blog?._id,
-    Content: blog?.Content,
-    Image : blog?.Image,
+    Content: blog?.content,
+    Image : blog?.image,
     Author: userReturn,
     Comments: comments,
     createAt: blog?.createdAt,
@@ -248,10 +245,9 @@ export const getPostById =  async(req: Request, res: Response)=>{
         status:404
       }
     ):  
-
     res.send(
       {
-        blog: blogReturn,
+        result: blogReturn,
         message: "Get one blog successfully !",
         status: 200
       }

@@ -8,31 +8,36 @@ import { User } from '../schemas'
 //_________________LOGIN____________________//
 
 export const login = async (req: Request, res: Response) => {
+
     const result = validationResult(req)
+
     if (!result.isEmpty()) {
-    return res.status(401).send(
+        return res.status(401).send(
             {
                 error: result.array(),
                 message: "Just fill empty filed",
-                status: 401
+                status: 400
             }
         )
     }
 
     const data = matchedData(req)
-    const user = await User.findOne({ Email: data.Email })
+
+    const user = await User.findOne({ email: data.email })
+
+    console.log(data)
 
     try {
         if (user) {
-            const auth = comparePassword(data.Password, user.Password)
+            const auth = comparePassword(data.password, user.password)
             const token = createToken(user._id)
 
             const userFilter = {
-            _id: user._id,
-            name: user.Name,
-            email: user.Email,
-            avatar: user.Avatar,
-            role: user.Role,
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar,
+                role: user.role,
             }
 
             if (auth) {
@@ -40,7 +45,7 @@ export const login = async (req: Request, res: Response) => {
             return (
                 res.status(200).json(
                     {
-                        user: userFilter,
+                        result: userFilter,
                         message: "Login succeed !!!",
                         status: 200,
                         token: token
@@ -79,31 +84,31 @@ export const resgister = async (req: Request, res: Response) => {
     }
 
     const data = matchedData(req)
-    data.Password = hashPassword(data.Password)
+    data.password = hashPassword(data.password)
     const newUser = new User(data)
 
     try {
-    const saveUser = await newUser.save()
+        const saveUser = await newUser.save()
 
-    const userFilter = {
-        _id: saveUser._id,
-        Name: saveUser.Name,
-        Email: saveUser.Email,
-        Avatar: saveUser.Avatar,
-        Role: saveUser.Role,
-    }
+        const userFilter = {
+            _id: saveUser._id,
+            name: saveUser.name,
+            email: saveUser.email,
+            avatar: saveUser.avatar,
+            role: saveUser.role,
+        }
 
-    return res.status(201).send({
-        user: userFilter,
-        message: 'Create new user successfully !',
-        status: 201
-    })
+        return res.status(201).send({
+            result: userFilter,
+            message: 'Create new user successfully !',
+            status: 201
+        })
     } catch (error) {
-    return res.status(400).send({
-        error,
-        message: "Create a new user failed !!!",
-        status: 400
-    })
+        return res.status(400).send({
+            error,
+            message: "Create a new user failed !!!",
+            status: 400
+        })
     }
 }
 

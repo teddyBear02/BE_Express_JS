@@ -2,7 +2,7 @@ import { Blog, User, Comments } from '../schemas'
 import { Request , Response } from 'express'
 import { validationResult, matchedData } from 'express-validator'
 
-// [GET] - Comment
+// [GET] - Comment by id
   
 export const getComment = async (req:Request, res:Response)=>{
   const blogs  = await Blog.find()
@@ -20,7 +20,7 @@ export const getComment = async (req:Request, res:Response)=>{
     try {
       const comments = await Comments.find({ BlogId: blog.id});
       res.status(200).send({
-        comments: comments,
+        result: comments,
         message: "Get all comments successfully !",
         status: 200
       })
@@ -33,11 +33,11 @@ export const getComment = async (req:Request, res:Response)=>{
 
 //[POST] - Comment 
   
-export const postComment = async (req:Request, res:Response)=>{ 
+export const postComment = async (req : Request, res : Response)=>{ 
 
   const userComment : any = await User.findOne({_id:req.params.user_id})
 
-  const blog : any = await Blog.findOne({_id: req.params.blog_id, Author: req.params.user_id})
+  const blog : any = await Blog.findOne({_id: req.params.blog_id})
   
   const result = validationResult(req)
 
@@ -53,9 +53,9 @@ export const postComment = async (req:Request, res:Response)=>{
 
   const newComment = new Comments(
     {
-      CommentContent: data.Comment,
-      AuthorId: userComment._id,
-      BlogId: blog._id
+      commentContent: data.Comment,
+      authorId: userComment._id,
+      blogId: blog._id
     }
   )
   
@@ -63,11 +63,13 @@ export const postComment = async (req:Request, res:Response)=>{
       blog.Comment.push(newComment)
       await blog.save()
       const comment = await newComment.save()
-      return res.status(201).send({
-      comment: comment,
-      message: 'Create new comment successfully !',
-      status: 201
-      })  
+      return res.status(201).send(
+        {
+          result: comment,
+          message: 'Create new comment successfully !',
+          status: 201
+        }
+      )  
   } catch (error) {
       return res.status(400).send(error)
   }

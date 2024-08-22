@@ -4,24 +4,24 @@ const Schema = mongoose.Schema
 
 const BlogSchema = new Schema(
     {
-        Content: { 
+        content: { 
             type: Schema.Types.String, 
             required: true,
             length: 100000
         },
 
-        Image:{
+        image:{
             type: Schema.Types.String,
             default: null
         },
 
-        Comment:{
+        comment:{
             type: Schema.Types.Array,
             default: [],
             ref: "Comments"
         },
 
-        Author:{
+        author:{
             type: Schema.Types.ObjectId,
             ref: "User"
         },

@@ -11,10 +11,10 @@ export const getUser =  async (req: Request, res: Response) => {
         users.map( (user)=>{
           const userReturn = {
             id: user._id,
-            name: user.Name,
-            email: user.Email,
-            avatar: user.Avatar,
-            role: user.Role,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar,
+            role: user.role,
             created_at : user.createdAt,
             updated_at: user.updatedAt 
           }
@@ -22,7 +22,7 @@ export const getUser =  async (req: Request, res: Response) => {
         })
       
       res.status(200).send({
-        users: usersReturn,
+        result: usersReturn,
         message: "Get all users successfully !",
         status: 200
       })
@@ -57,64 +57,64 @@ export  const deleteUserById = async (req :Request, res : Response) => {
 // [GET] - User by id
 
 export const getUserById = async (req :Request, res : Response) => {
-    const id = req.params.id
-    if (!id) return res.status(400).send({
-      message: "Bad Resquest,400"
-    })
+  const id = req.params.id
+  if (!id) return res.status(400).send({
+    message: "Bad Resquest,400"
+  })
 
-    const user = await User.findOne({_id: req.params.id})
+  const user = await User.findOne({_id: req.params.id})
 
-    const blogs = await Blog.find({Author: user?._id})
+  const blogs = await Blog.find({Author: user?._id})
 
 
-    const userReturn = {
-      _id: user?._id,
-      name: user?.Name,
-      Email: user?.Email,
-      Avatar: user?.Avatar,
-      Role: user?.Role,
-      Blogs: blogs
-    }
-
-    !user ?
-
-      res.status(404).send(
-        {
-          message: `Not found user with id: ${id} !`,
-          status: 404
-        }
-      ) :
-
-      res.send(
-        {
-          user: userReturn,
-          message: "Get one user successfully !",
-          status: 200
-        }
-      )
+  const userReturn = {
+    _id: user?._id,
+    name: user?.name,
+    email: user?.email,
+    avatar: user?.avatar,
+    role: user?.role,
+    blogs: blogs
   }
+
+  !user ?
+
+    res.status(404).send(
+      {
+        message: `Not found user with id: ${id} !`,
+        status: 404
+      }
+    ) :
+
+    res.send(
+      {
+        result: userReturn,
+        message: "Get one user successfully !",
+        status: 200
+      }
+    )
+}
 
 
  // [UPDATE] - User
 
 export const updateUser =  async (req: Request, res: Response) => {
-    const {
-      body,
-      params: { id }
-    } = req
+  const {
+    body,
+    params: { id }
+  } = req
 
-    const users = await User.find()
+  const users = await User.find()
 
-    if (!id) return res.sendStatus(400)
+  if (!id) return res.sendStatus(400)
 
-    const userIndex = users.findIndex((user) => user.id === id)
+  const userIndex = users.findIndex((user) => user.id === id)
 
-    if (userIndex === -1) {
-      return res.sendStatus(404)
-    } else {
-      const userUpdate = await User.findByIdAndUpdate(id, body, { new: true });
-      return res.status(201).send(userUpdate)
-    }
+  if (userIndex === -1) {
+    return res.sendStatus(404)
+  } else {
+    const userUpdate = await User.findByIdAndUpdate(id, body, { new: true });
+    return res.status(201).send(userUpdate)
   }
+}
 
 

@@ -4,29 +4,29 @@ const Schema = mongoose.Schema
 
 const UsersSchema = new Schema(
     {
-        Name: { 
+        name: { 
             type: Schema.Types.String,
             unique: false,
             require: true,
         },
 
-        Password:{
+        password:{
             type : Schema.Types.String,
             require : true,
         },
 
-        Email:{
+        email:{
             type:Schema.Types.String,
             unique: true,
             require: true
         },
 
-        Avatar:{
+        avatar:{
             type: Schema.Types.String,
             default: null
         },
 
-        Role:{
+        role:{
             type: Schema.Types.Number, 
             default: 0,
             require:true

@@ -1,6 +1,7 @@
 import { login, resgister, logout } from '../controllers/auth.controller'
 import { body } from 'express-validator'
 import { Router } from 'express'
+import { algorithm } from '../helpers/jwtOAuthHelper'
 
 const router = Router()
 
@@ -8,10 +9,10 @@ const router = Router()
 
 router.post(`/api/login`,
     [
-      body("Email")
+      body("email")
         .notEmpty()
         .withMessage("Email can't be empty"),
-      body("Password")
+      body("password")
         .notEmpty()
         .withMessage("Password can't be empty"),
     ],
@@ -22,16 +23,16 @@ router.post(`/api/login`,
 
 router.post('/api/register',
     [
-        body("Name")
+        body("name")
         .notEmpty()
         .withMessage("Username can't be empty")
         .isLength({ min: 5, max: 32 })
         .withMessage("Username from 5 to 32 characters")
         .isString(),
-        body("Password")
+        body("password")
         .notEmpty()
         .withMessage("Password can't be empty"),
-        body("Email")
+        body("email")
         .notEmpty()
         .withMessage("Filled this filed")
     ],

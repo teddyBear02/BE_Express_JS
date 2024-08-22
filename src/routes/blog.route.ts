@@ -20,7 +20,7 @@ router.get('/api/blog/:id', algorithm, getPostById )
 
 router.post('/api/blog', algorithm,
     [
-        body("Content")
+        body("content")
         .notEmpty()
         .withMessage("Content can't be empty !")
         .isLength({min:2})

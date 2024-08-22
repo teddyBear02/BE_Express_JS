@@ -21,6 +21,4 @@ export const resetToken = () =>{
     
 }
 
-export const algorithm = () =>{
-    return jwts({secret:SECRET_KEY, algorithms :["HS384"]})
-}
+export const algorithm = jwts({secret:SECRET_KEY, algorithms :["HS384"]})

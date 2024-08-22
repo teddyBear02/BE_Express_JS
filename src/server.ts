@@ -2,7 +2,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import session from 'express-session'
 import routes from './routes/index'
 import cookieParser from 'cookie-parser'
@@ -13,7 +12,7 @@ import { PORT } from './constants'
 
 
 // Coding here: 
-dotenv.config()
+
 const app = express()
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 

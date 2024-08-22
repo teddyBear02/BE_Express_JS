@@ -8,7 +8,7 @@ const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
 router.get('/api/comments/:blog_id', algorithm, getComment)
 
-router.post('/api/comments/:blog_id/:user_id',algorithm,
+router.post('/api/comments/:blog_id/:user_id', algorithm,
     [
         body("Comment")
         .notEmpty()

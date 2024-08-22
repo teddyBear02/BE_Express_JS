@@ -4,17 +4,17 @@ const Schema = mongoose.Schema
 
 const CommentSchema = new Schema(
     {
-        CommentContent:{
+        content:{
             type: Schema.Types.String,
             length: 200
         },
 
-        AuthorId:{
+        authorId:{
             type: Schema.Types.ObjectId,
             ref: "User"
         },
 
-        BlogId: {
+        blogId: {
             type: Schema.Types.ObjectId,
             ref: "Blog"
         },
