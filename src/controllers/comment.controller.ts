@@ -53,29 +53,57 @@ export const postComment = async (req : Request, res : Response)=>{
 
   const newComment = new Comments(
     {
-      commentContent: data.Comment,
+      content: data.Comment,
       authorId: userComment._id,
       blogId: blog._id
     }
   )
-  
-  try {
-      blog.Comment.push(newComment)
-      await blog.save()
-      const comment = await newComment.save()
-      return res.status(201).send(
-        {
-          result: comment,
-          message: 'Create new comment successfully !',
-          status: 201
-        }
-      )  
-  } catch (error) {
-      return res.status(400).send(error)
-  }
+
+  console.log(newComment)
+
+  await blog.save()
+  const comment = await newComment.save()
+  return res.status(201).send(
+    {
+      result: comment,
+      message: 'Create new comment successfully !',
+      status: 201
+    }
+  )  
 }
 
 
 // [UPDATE] - Comment: 
+export const updateComment = async (req : Request, res : Response)=>{ 
+
+  const { body, params:{id} } = req
+
+  try {
+    const existComment = await Comments.findById(id)
+
+    if( existComment === undefined || existComment === null ) {
+      return res.status(404).send(
+        {
+          message: "Not found",
+          status: 404
+        }
+      )
+    }
+  
+    const commentUpdate = await Comments.findByIdAndUpdate(id, body, { new: true })
+  
+    return res.send({
+      result: commentUpdate,
+      message: 'test',
+      status: 200
+    })
+    
+  } catch (error) {
+    return res.status(404).send({
+      stattus: 404,
+      message: 'not found !'
+    })
+  }
+}
 
 

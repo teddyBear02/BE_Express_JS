@@ -1,7 +1,6 @@
 import { login, resgister, logout } from '../controllers/auth.controller'
 import { body } from 'express-validator'
 import { Router } from 'express'
-import { algorithm } from '../helpers/jwtOAuthHelper'
 
 const router = Router()
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { getComment, postComment } from "../controllers/comment.controller";
+import { getComment, postComment, updateComment } from "../controllers/comment.controller";
 import { algorithm } from "../helpers/jwtOAuthHelper";
 const router = Router()
 const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
@@ -19,6 +19,15 @@ router.post('/api/comments/:blog_id/:user_id', algorithm,
     postComment
 )
 
-router.put('/api/comments/:id', algorithm, )
+router.put('/api/comments/:id', algorithm, 
+    [
+        body("content")
+        .notEmpty()
+        .withMessage("Content can't be empty !")
+        .isLength({min:2})
+        .withMessage("Blog content is more than 1 characters !")
+    ], 
+    updateComment
+)
 
 export default router

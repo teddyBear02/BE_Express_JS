@@ -116,5 +116,3 @@ export const updateUser =  async (req: Request, res: Response) => {
     return res.status(201).send(userUpdate)
   }
 }
-
-

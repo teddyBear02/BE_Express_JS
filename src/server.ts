@@ -7,14 +7,12 @@ import routes from './routes/index'
 import cookieParser from 'cookie-parser'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
-import {swaggerOptions} from './swagger/swaggerOptions'
 import { PORT } from './constants'
 
 
 // Coding here: 
 
 const app = express()
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 mongoose.connect(`${process.env.DATABASE_MONGOSE_URL}`)
     .then(() => console.log('Connected to DB !!!'))
@@ -42,10 +40,8 @@ app.use(session(
 
 app.use(express.json())
 app.use(routes)
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.listen(PORT, async ()=>{
     console.log(`Server is running at http://localhost:${PORT}`)
-    console.log(`API Swagger is running at http://localhost:${PORT}/api-docs`)
 })
 
 
