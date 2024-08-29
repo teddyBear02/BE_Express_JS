@@ -105,5 +105,3 @@ export const updateComment = async (req : Request, res : Response)=>{
     })
   }
 }
-
-

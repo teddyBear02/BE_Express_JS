@@ -117,11 +117,16 @@ export const resgister = async (req: Request, res: Response) => {
 
 export const logout = async (req:Request, res: Response) => {
     req.session.destroy((err) => {
-    if (err) {
-        console.error('Failed to destroy session:', err);
-        return res.status(500).json({ message: 'Failed to logout' });
-    }
-    res.clearCookie('connect.sid');
-    return res.json({ message: 'Logout successful', status: 200 });
+        if (err) {
+            console.error('Failed to destroy session:', err);
+            return res.status(500).json({ message: 'Failed to logout' });
+        }
+        res.clearCookie('connect.sid');
+        return res.json(
+            { 
+                message: 'Logout successful', 
+                status: 200 
+            }
+            );
     });
 }
