@@ -5,10 +5,7 @@ import cors from 'cors'
 import session from 'express-session'
 import routes from './routes/index'
 import cookieParser from 'cookie-parser'
-import swaggerJsdoc from 'swagger-jsdoc'
-import swaggerUi from 'swagger-ui-express'
 import { PORT } from './constants'
-
 
 // Coding here: 
 

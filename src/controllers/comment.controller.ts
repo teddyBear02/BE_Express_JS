@@ -1,6 +1,7 @@
 import { Blog, User, Comments } from '../schemas'
 import { Request , Response } from 'express'
 import { validationResult, matchedData } from 'express-validator'
+import { HttpResponseStatus, HttpResponseMessage } from '../constants'
 
 // [GET] - Comment by id
   
@@ -79,29 +80,23 @@ export const updateComment = async (req : Request, res : Response)=>{
   const { body, params:{id} } = req
 
   try {
-    const existComment = await Comments.findById(id)
 
-    if( existComment === undefined || existComment === null ) {
-      return res.status(404).send(
-        {
-          message: "Not found",
-          status: 404
-        }
-      )
-    }
-  
     const commentUpdate = await Comments.findByIdAndUpdate(id, body, { new: true })
-  
-    return res.send({
-      result: commentUpdate,
-      message: 'test',
-      status: 200
-    })
+
+    return res.send(
+      {
+        result: commentUpdate,
+        message: HttpResponseMessage.SUCCESS,
+        status: HttpResponseStatus.SUCCESS
+      }
+    )
     
   } catch (error) {
-    return res.status(404).send({
-      stattus: 404,
-      message: 'not found !'
-    })
+    return res.status(404).send(
+      {
+        status: HttpResponseStatus.NOT_FOUND,
+        message: HttpResponseMessage.NOT_FOUND
+      }
+    )
   }
 }

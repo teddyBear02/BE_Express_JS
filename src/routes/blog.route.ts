@@ -1,6 +1,6 @@
-import { Router } from 'express'
 import { body } from 'express-validator'
 import { algorithm } from '../helpers/jwtOAuthHelper'
+import router from '../helpers/router.helper'
 import { 
     getAllBlogs, 
     getBlogByUserId, 
@@ -10,7 +10,6 @@ import {
     createNewPost
 } from '../controllers/blog.controller'
 
-const router = Router()
 
 router.get('/api/blogs', algorithm, getAllBlogs )
 

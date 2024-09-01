@@ -43,9 +43,10 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 
 //*_______________ [GET] - All blogs by user id : __________________//
 
-
 export const getBlogByUserId = async (req: Request, res: Response)=>{
-  const user  = await User.findOne({_id: req.params.user_id})
+  
+  const user  = await User.findOne({_id: req.params.user_id}).exec()
+
   if(!user){
     return res.status(404).send({
       message:"Not found user",
@@ -133,6 +134,7 @@ export const createNewPost = async (req:Request, res:Response)=>{
 
 
 export const updatePost = async (req:Request, res:Response)=>{
+  
   const token : string | any = req.headers['authorization'];
 
   const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);

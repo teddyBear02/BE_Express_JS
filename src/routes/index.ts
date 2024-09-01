@@ -1,14 +1,11 @@
 // Import things heres: 
-import { Router } from 'express'
+import router from '../helpers/router.helper'
 
 // Import Routes:
-
 import AuthRouter from './auth.route'
 import UserRouter from './user.route'
 import BlogRouter from './blog.route'
 import CommentRouter from './comment.route'
-
-const router : Router = Router()
 
 router.use(AuthRouter)
 router.use(UserRouter)

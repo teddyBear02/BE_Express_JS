@@ -1,8 +1,6 @@
 import { login, resgister, logout } from '../controllers/auth.controller'
 import { body } from 'express-validator'
-import { Router } from 'express'
-
-const router = Router()
+import router from '../helpers/router.helper'
 
 // [POST] - Login
 

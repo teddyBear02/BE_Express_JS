@@ -1,9 +1,7 @@
-import { Router } from "express";
 import { body } from "express-validator";
+import router from '../helpers/router.helper'
 import { getComment, postComment, updateComment } from "../controllers/comment.controller";
 import { algorithm } from "../helpers/jwtOAuthHelper";
-const router = Router()
-const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
 
 
 router.get('/api/comments/:blog_id', algorithm, getComment)

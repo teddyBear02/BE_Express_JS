@@ -1,97 +1,117 @@
 import {  Request, Response } from 'express'
 import { Blog, User } from '../schemas'
+import { matchedData, validationResult } from 'express-validator'
 
-//* [GET] - All users
+//* [POST] - Seacrh user: 
 
 export const getUser =  async (req: Request, res: Response) => {
-    try {
-      const users = await User.find();
 
-      const usersReturn = 
-        users.map( (user)=>{
-          const userReturn = {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-            role: user.role,
-            created_at : user.createdAt,
-            updated_at: user.updatedAt 
-          }
-          return userReturn
-        })
-      
-      res.status(200).send({
-        result: usersReturn,
-        message: "Get all users successfully !",
-        status: 200
-      })
-    } catch (error: Error | undefined | any) {
-      res.status(400).send(error.message)
-    }
+  const configSearch = matchedData(req)
+
+  const result = validationResult(req)
+
+  if (!result.isEmpty()) {
+    return res.status(400).send(
+        {
+            error: result.array(),
+            status: 400
+        }
+    )
   }
 
+  const regex = new RegExp(configSearch.search.keyword,'i')
+
+  const users = await User.find({
+    $or : [
+      {name: { $regex :  regex}}, 
+      { email: { $regex :  regex}}
+    ],
+  });
+
+  try {
+    const usersReturn = 
+      users.map( (user)=>{
+        const userReturn = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          role: user.role,
+          created_at : user.createdAt,
+          updated_at: user.updatedAt 
+        }
+        return userReturn
+      })
+    
+    res.status(200).send({
+      result: usersReturn,
+      message: "Get all users successfully !",
+      status: 200
+    })
+  } catch (error: Error | undefined | any) {
+    res.status(400).send(error.message)
+  }
+}
 
 //! [DELETE] User by id - DON'T USE THIS ROUTE :
 
 export  const deleteUserById = async (req :Request, res : Response) => {
-    const { params: { id } } = req
+  const { params: { id } } = req
 
-    const users = await User.find()
+  try {
 
-    if (!id) return res.sendStatus(400)
+    await User.findByIdAndDelete(id)
 
-    const findUserIndex = users.findIndex((user) => user.id === id)
+    return res.status(200).send({
+      message: "Delete record successfully !",
+      status: 200
+    })
 
-    if (findUserIndex === -1) {
-      return res.sendStatus(404)
-    } else {
-      await User.findByIdAndDelete(id)
-      return res.status(200).send({
-        message: "Delete record successfully !"
-      })
-    }
+  } catch (error) {
+
+    return res.status(404).send({
+      message: "User not found !",
+      status: 404
+    })
+
   }
+  
+}
 
 
 // [GET] - User by id
 
 export const getUserById = async (req :Request, res : Response) => {
-  const id = req.params.id
-  if (!id) return res.status(400).send({
-    message: "Bad Resquest,400"
-  })
 
-  const user = await User.findOne({_id: req.params.id})
+  const { params : {id} } = req
+  
+  try {
+    const user = await User.findById(id)
 
-  const blogs = await Blog.find({Author: user?._id})
+    const userReturn = {
+      _id: user?._id,
+      name: user?.name,
+      email: user?.email,
+      avatar: user?.avatar,
+      role: user?.role
+    }
 
-
-  const userReturn = {
-    _id: user?._id,
-    name: user?.name,
-    email: user?.email,
-    avatar: user?.avatar,
-    role: user?.role,
-    blogs: blogs
-  }
-
-  !user ?
-
-    res.status(404).send(
-      {
-        message: `Not found user with id: ${id} !`,
-        status: 404
-      }
-    ) :
-
-    res.send(
+    return res.send(
       {
         result: userReturn,
         message: "Get one user successfully !",
         status: 200
       }
     )
+
+  } catch (error) {
+    return  res.status(404).send(
+      {
+        message: `Not found user with id: ${id} !`,
+        status: 404
+      }
+    ) 
+  }
 }
 
 
@@ -103,16 +123,17 @@ export const updateUser =  async (req: Request, res: Response) => {
     params: { id }
   } = req
 
-  const users = await User.find()
-
-  if (!id) return res.sendStatus(400)
-
-  const userIndex = users.findIndex((user) => user.id === id)
-
-  if (userIndex === -1) {
-    return res.sendStatus(404)
-  } else {
+  try {
     const userUpdate = await User.findByIdAndUpdate(id, body, { new: true });
-    return res.status(201).send(userUpdate)
+    return res.status(201).send({
+      result: userUpdate,
+      message: "Update successfully !!!",
+      status: 201
+    })
+  } catch (error) {
+    return res.status(404).send({
+      message: "Not found",
+      status: 404
+    })
   }
 }

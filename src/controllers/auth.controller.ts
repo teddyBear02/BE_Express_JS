@@ -9,10 +9,14 @@ import { User } from '../schemas'
 
 export const login = async (req: Request, res: Response) => {
 
+    const data = matchedData(req)
+
     const result = validationResult(req)
 
+    const user = await User.findOne({ email: data.email }).exec()
+
     if (!result.isEmpty()) {
-        return res.status(401).send(
+        return res.status(400).send(
             {
                 error: result.array(),
                 message: "Just fill empty filed",
@@ -21,60 +25,51 @@ export const login = async (req: Request, res: Response) => {
         )
     }
 
-    const data = matchedData(req)
-
-    const user = await User.findOne({ email: data.email })
-
-    console.log(data)
-
-    try {
-        if (user) {
-            const auth = comparePassword(data.password, user.password)
-            const token = createToken(user._id)
-
-            const userFilter = {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                avatar: user.avatar,
-                role: user.role,
-            }
-
-            if (auth) {
-
-            return (
-                res.status(200).json(
-                    {
-                        result: userFilter,
-                        message: "Login succeed !!!",
-                        status: 200,
-                        token: token
-                    }
-                )
-            )
-            } else {
-                return res.status(401).json({
-                    message: "Wrong email or password !",
-                    status: 401
-                })
-            }
-        }else{
-            return res.status(401).json({
-                message: "Wrong email or password !",
+    if( ! user?.email ){
+        return res.status(401).json(
+            {
+                message: "Email does'nt exist !",
                 status: 401
-            })
-        }
-    } catch (error) {
-        console.log(error)
+            }
+        )
+    }else if( !comparePassword( data.password, user.password )) {
+        return res.status(401).json(
+            {
+                message: "Wrong password !",
+                status: 401
+            }
+        )
     }
-}
 
+    const token = createToken(user._id)
+    const userFilter = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+    }
+
+    return (
+        res.status(200).json(
+            {
+                result: userFilter,
+                message: "Login succeed !!!",
+                status: 200,
+                token: token
+            }
+        )
+    )
+}
 
 //__________________REGISTER____________________//
 
 export const resgister = async (req: Request, res: Response) => {
     
     const result = validationResult(req)
+
+    const data = matchedData(req)
+
     if (!result.isEmpty()) {
         return res.status(400).send({
             error: result.array(),
@@ -83,8 +78,8 @@ export const resgister = async (req: Request, res: Response) => {
         })
     }
 
-    const data = matchedData(req)
     data.password = hashPassword(data.password)
+
     const newUser = new User(data)
 
     try {
@@ -105,8 +100,7 @@ export const resgister = async (req: Request, res: Response) => {
         })
     } catch (error) {
         return res.status(400).send({
-            error,
-            message: "Create a new user failed !!!",
+            message: "Email already used !!!",
             status: 400
         })
     }
