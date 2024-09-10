@@ -6,6 +6,9 @@ import { HttpResponseStatus, HttpResponseMessage } from '../constants'
 // [GET] - Comment by id
   
 export const getComment = async (req:Request, res:Response)=>{
+
+  
+
   const blogs  = await Blog.find()
   
   const blog = blogs.find((blog)=>{

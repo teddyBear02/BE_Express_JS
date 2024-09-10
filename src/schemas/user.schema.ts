@@ -32,6 +32,14 @@ const UsersSchema = new Schema(
             require:true
         },
 
+        bio: {
+            type: Schema.Types.String
+        },
+
+        homeTown: {
+            type: Schema.Types.String
+        },
+
         createdAt: {
             type: Schema.Types.Date, 
             default: Date.now

@@ -1,22 +1,32 @@
 import { Blog, User, Comments } from '../schemas'
 import { Request, Response } from 'express'
-import jwt from "jsonwebtoken"
 import { validationResult, matchedData } from 'express-validator'
+import { tokenInfo } from '../helpers/jwtOAuthHelper'
 
-const SECRET_KEY : string | any = process.env.TOKEN_SECRET_KEY
-interface UserInfo{
-  id: string
-}
-
-//*_______________ [GET] - all blogs: __________________//
+//*_______________ [POST] - all blogs: __________________//
 
 export const getAllBlogs = async (req: Request, res: Response)=>{
-  const blogs = await Blog.find();
 
-  //
+  const request  = matchedData(req)
+
+  const result = validationResult(req)
+
+  if (!result.isEmpty()) {
+    return res.status(400).send(
+        {
+            error: result.array(),
+            status: 400
+        }
+    )
+  }
+
+  const blogs = await 
+    Blog.find({})
+        .skip((request.pagination.pageNumber - 1) * request.pagination.pageSize)
+        .limit(request.pagination.pageSize).exec()
+
   const responseData = await Promise.all(
     blogs.map(async (blog) => {
-
       const blogReturn = {
         _id: blog._id,
         content: blog.content,
@@ -30,9 +40,22 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
     })
   )
 
+  const totalRecord = await
+    Blog.countDocuments({})
+      .then((count)=>{
+        return count
+      })
+      .catch(err => {
+        return err
+      });
+
+  const totalPage = Math.floor(totalRecord /  request.pagination.pageSize) + 1
+
   try {
     res.status(200).send({
       result: responseData,
+      totalPage: totalPage,
+      totalRecord: totalRecord,
       message: "Get all blogs successfully !",
       status: 200
     })
@@ -44,35 +67,33 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 //*_______________ [GET] - All blogs by user id : __________________//
 
 export const getBlogByUserId = async (req: Request, res: Response)=>{
+
+  const { params } = req
   
-  const user  = await User.findOne({_id: req.params.user_id}).exec()
+  const user  = await User.findOne({_id: params.user_id}).exec()
 
-  if(!user){
-    return res.status(404).send({
-      message:"Not found user",
-      status: 404
-    })
-  }else{
-    try {
-      const blogs = await Blog.find({Author:user.id});
+  if(user === null) return
 
-      const userFilter = {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        role: user.role,
-      }
+  try {
+  
+    const blogs = await Blog.find({author:user.id});
 
-      res.status(200).send({
-        user: userFilter,
-        result: blogs,
-        message: "Get all blogs successfully !",
-        status: 200
-      })
-    } catch (error : Error | undefined | any) {
-      res.status(400).send(error.message)
+    const userFilter = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
     }
+
+    res.status(200).send({
+      user: userFilter,
+      result: blogs,
+      message: "Get all blogs successfully !",
+      status: 200
+    })
+  } catch (error : Error | undefined | any) {
+    res.status(400).send(error.message)
   }
 }
 
@@ -82,50 +103,43 @@ export const getBlogByUserId = async (req: Request, res: Response)=>{
 
 export const createNewPost = async (req:Request, res:Response)=>{ 
 
-  const token : any | string = req.headers['authorization'];
-
-  const decodedToken : any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const decodedToken : any = tokenInfo(req,res)
 
   const userCreate : any = await User.findOne({_id:decodedToken.id})
-
-  const userFilter = {
-    _id: userCreate._id,
-    name: userCreate.name,
-    email: userCreate.email,
-    avatar: userCreate.avatar,
-    role: userCreate.role,
-    blog: userCreate.blog
-  }
   
   const result = validationResult(req)
 
+  const data = matchedData(req)
+  
   if(!result.isEmpty()){
       return res.status(400).send({
         error: result.array(),
         message:"Just fill empty filed",
-        status:400
+        status:400  
       })
   }
 
-  const data = matchedData(req)
-
-  console.log(data)
-  const newBlog = new Blog(
-    {
-      content: data.content,
-      author: userFilter
-    }
-  )
-
   try {
+
+      const newBlog = new Blog(
+        {
+          content: data.content,
+          author: userCreate._id
+        }
+      )
+
       const blog = await newBlog.save()
+
       return res.status(201).send({
         result: blog,
         message: 'Create new blog successfully !',
         status: 201
       })  
   } catch (error) {
-      return res.status(400).send(error)
+      return res.status(400).send({
+        message: error,
+        status: 400
+      })
   }
 }
 
@@ -135,9 +149,7 @@ export const createNewPost = async (req:Request, res:Response)=>{
 
 export const updatePost = async (req:Request, res:Response)=>{
   
-  const token : string | any = req.headers['authorization'];
-
-  const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const decodedToken : any = tokenInfo(req,res)
 
   const userCreate = await User.findOne({_id:decodedToken.id})
 
@@ -176,9 +188,7 @@ export const updatePost = async (req:Request, res:Response)=>{
 export const deletePostById =  async(req: Request, res: Response) =>{
   const {params:{id}}= req
 
-  const token : string | any = req.headers['authorization'];
-
-  const decodedToken : UserInfo | Object | any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const decodedToken : any = tokenInfo(req,res)
 
   const userCreate = await User.findOne({_id:decodedToken.id})
 
@@ -223,18 +233,18 @@ export const getPostById =  async(req: Request, res: Response)=>{
 
   const userReturn = {
     _id:userCreated?._id,
-    Name: userCreated?.name,
-    Email: userCreated?.email,
-    Avatar: userCreated?.avatar,
-    Role: userCreated?.role,
+    name: userCreated?.name,
+    email: userCreated?.email,
+    avatar: userCreated?.avatar,
+    role: userCreated?.role,
   }
 
   const blogReturn = {
     _id: blog?._id,
-    Content: blog?.content,
-    Image : blog?.image,
-    Author: userReturn,
-    Comments: comments,
+    content: blog?.content,
+    image : blog?.image,
+    author: userReturn,
+    comments: comments,
     createAt: blog?.createdAt,
     updateAt: blog?.updatedAt
   }

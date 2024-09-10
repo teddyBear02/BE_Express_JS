@@ -1,6 +1,8 @@
 import {  Request, Response } from 'express'
-import { Blog, User } from '../schemas'
+import { User } from '../schemas'
 import { matchedData, validationResult } from 'express-validator'
+import jwt from "jsonwebtoken" 
+import { SECRET_KEY } from '../constants'
 
 //* [POST] - Seacrh user: 
 
@@ -26,7 +28,9 @@ export const getUser =  async (req: Request, res: Response) => {
       {name: { $regex :  regex}}, 
       { email: { $regex :  regex}}
     ],
-  });
+  })
+  .skip((configSearch.pagination.pageNumber-1) * configSearch.pagination.pageSize)
+  .limit(configSearch.pagination.pageSize);
 
   try {
     const usersReturn = 
@@ -78,6 +82,45 @@ export  const deleteUserById = async (req :Request, res : Response) => {
   
 }
 
+// [GET] Get user's information: 
+
+export const getUserInfo = async (req :Request, res : Response) => {
+
+  const token : any | string = req.headers['authorization'];
+
+  const decodedToken : any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+
+  const user : any = await User.findById({_id : decodedToken.id})
+  
+  try {
+
+    const userReturn = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role
+    }
+
+    return res.send(
+      {
+        result: userReturn,
+        message: "Get one user successfully !",
+        status: 200
+      }
+    )
+
+  } catch (error) {
+    return  res.status(400).send(
+      {
+        message: `Error : ${error}`,
+        status: 400
+      }
+    ) 
+  }
+}
+
+
 
 // [GET] - User by id
 
@@ -86,7 +129,7 @@ export const getUserById = async (req :Request, res : Response) => {
   const { params : {id} } = req
   
   try {
-    const user = await User.findById(id)
+    const user = await User.findById({ _id : id })
 
     const userReturn = {
       _id: user?._id,
