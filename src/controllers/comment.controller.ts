@@ -7,8 +7,6 @@ import { HttpResponseStatus, HttpResponseMessage } from '../constants'
   
 export const getComment = async (req:Request, res:Response)=>{
 
-  
-
   const blogs  = await Blog.find()
   
   const blog = blogs.find((blog)=>{
@@ -33,7 +31,6 @@ export const getComment = async (req:Request, res:Response)=>{
     }
   }
 }
-
 
 //[POST] - Comment 
   

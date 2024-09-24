@@ -1,14 +1,16 @@
 import {  Request, Response } from 'express'
 import { User } from '../schemas'
 import { matchedData, validationResult } from 'express-validator'
-import jwt from "jsonwebtoken" 
-import { SECRET_KEY } from '../constants'
+import { tokenInfo } from '../helpers/jwtOAuthHelper'
+
 
 //* [POST] - Seacrh user: 
 
 export const getUser =  async (req: Request, res: Response) => {
 
   const configSearch = matchedData(req)
+
+  const { pagination, search } = configSearch
 
   const result = validationResult(req)
 
@@ -21,7 +23,7 @@ export const getUser =  async (req: Request, res: Response) => {
     )
   }
 
-  const regex = new RegExp(configSearch.search.keyword,'i')
+  const regex = new RegExp(search.keyword,'i')
 
   const users = await User.find({
     $or : [
@@ -29,24 +31,24 @@ export const getUser =  async (req: Request, res: Response) => {
       { email: { $regex :  regex}}
     ],
   })
-  .skip((configSearch.pagination.pageNumber-1) * configSearch.pagination.pageSize)
-  .limit(configSearch.pagination.pageSize);
+  .skip((pagination.pageNumber-1) * pagination.pageSize)
+  .limit(pagination.pageSize);
+
+  const usersReturn = 
+    users.map( (user)=>{
+      const userReturn = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+        created_at : user.createdAt,
+        updated_at: user.updatedAt 
+      }
+      return userReturn
+    })
 
   try {
-    const usersReturn = 
-      users.map( (user)=>{
-        const userReturn = {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar,
-          role: user.role,
-          created_at : user.createdAt,
-          updated_at: user.updatedAt 
-        }
-        return userReturn
-      })
-    
     res.status(200).send({
       result: usersReturn,
       message: "Get all users successfully !",
@@ -63,7 +65,6 @@ export  const deleteUserById = async (req :Request, res : Response) => {
   const { params: { id } } = req
 
   try {
-
     await User.findByIdAndDelete(id)
 
     return res.status(200).send({
@@ -79,16 +80,13 @@ export  const deleteUserById = async (req :Request, res : Response) => {
     })
 
   }
-  
 }
 
 // [GET] Get user's information: 
 
 export const getUserInfo = async (req :Request, res : Response) => {
 
-  const token : any | string = req.headers['authorization'];
-
-  const decodedToken : any = jwt.verify(token.substring(7,token.length), SECRET_KEY);
+  const decodedToken = tokenInfo(req, res)
 
   const user : any = await User.findById({_id : decodedToken.id})
   

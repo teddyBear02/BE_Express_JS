@@ -15,7 +15,7 @@ mongoose.connect(`${process.env.DATABASE_MONGOSE_URL}`)
     .then(() => console.log('Connected to DB !!!'))
     .catch((err) => console.log(`Error: ${err}`))
 
-const key : any  = process.env.SESSION_SECRET_KEY    
+const key : string | undefined = process.env.SESSION_SECRET_KEY  
 
 app.use(cors({
     origin: process.env.END_POINT_URL,
@@ -23,17 +23,21 @@ app.use(cors({
 }))
 
 app.use(cookieParser());
-app.use(session(
-    {
-        secret: key,
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            secure: true,
-            httpOnly: true
+
+typeof key !== "undefined" ?
+    app.use(session(
+        {
+            secret: key,
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                secure: true,
+                httpOnly: true
+            }
         }
-    }
-))
+    ))
+: null
+
 
 app.use(express.json())
 app.use(routes)

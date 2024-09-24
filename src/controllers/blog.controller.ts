@@ -9,6 +9,8 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 
   const request  = matchedData(req)
 
+  const { pagination } = request
+
   const result = validationResult(req)
 
   if (!result.isEmpty()) {
@@ -22,23 +24,8 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 
   const blogs = await 
     Blog.find({})
-        .skip((request.pagination.pageNumber - 1) * request.pagination.pageSize)
-        .limit(request.pagination.pageSize).exec()
-
-  const responseData = await Promise.all(
-    blogs.map(async (blog) => {
-      const blogReturn = {
-        _id: blog._id,
-        content: blog.content,
-        image: blog.image,
-        comment: blog.comment,
-        author: blog.author,
-        createdAt: blog.createdAt,
-        updatedAt: blog.updatedAt
-      }
-      return blogReturn;
-    })
-  )
+        .skip((pagination.pageNumber - 1) * pagination.pageSize)
+        .limit(pagination.pageSize).exec()
 
   const totalRecord = await
     Blog.countDocuments({})
@@ -53,7 +40,7 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 
   try {
     res.status(200).send({
-      result: responseData,
+      result: blogs,
       totalPage: totalPage,
       totalRecord: totalRecord,
       message: "Get all blogs successfully !",
@@ -69,25 +56,11 @@ export const getAllBlogs = async (req: Request, res: Response)=>{
 export const getBlogByUserId = async (req: Request, res: Response)=>{
 
   const { params } = req
-  
-  const user  = await User.findOne({_id: params.user_id}).exec()
-
-  if(user === null) return
 
   try {
-  
-    const blogs = await Blog.find({author:user.id});
-
-    const userFilter = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-    }
+    const blogs = await Blog.find({author: params.user_id}).exec();
 
     res.status(200).send({
-      user: userFilter,
       result: blogs,
       message: "Get all blogs successfully !",
       status: 200

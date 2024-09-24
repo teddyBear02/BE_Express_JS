@@ -6,7 +6,7 @@ import { algorithm } from "../helpers/jwtOAuthHelper";
 
 router.post('/api/comments/:blog_id', algorithm,
     [
-    body("pagination")
+        body("pagination")
         .notEmpty()
         .withMessage("Pagination can't be empty !")
         .custom(value => {
